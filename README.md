@@ -1,55 +1,55 @@
-# Celestial Guide - Vedic Daily Intelligence
+# Celestial Guide - Direct Vedic Intelligence
 
-### Purpose
-Providing daily serene guidance based on Vedic Sidereal Astrology for **Surajkumar Salimath**.
+A premium, high-engagement astrological command center for **Surajkumar Salimath**.
 
-### System Features
-- **Celestial Harmony UI:** Serene, card-based interface with a 7-day guidance window.
-- **Deep Relationships:** Detailed insights for interacting with family and office superiors.
-- **Optimal Flow:** Suggested timings for meditation, workout, and rest.
-- **Secure Link:** Gemini API integration with environment variable support.
+## ✨ "Wow" Features
 
-### Setup Instructions
+### 1. 🎨 Aura-Sync UI (Dynamic Theming)
+The app's entire atmosphere—gradients, shadows, and button glows—automatically shifts every morning to match your **Luck Vector (Color)** of the day.
+
+### 2. 🌡️ Cosmic Heatmap (24-Hour Intensity)
+A horizontal, interactive timeline that visualizes the "Cosmic Temperature" of the day. See exactly when stress ends and lucky windows open.
+
+### 3. 🎙️ Morning Mission (AI Audio Briefing)
+A one-tap audio summary of your day. Hear your "Primary Directive" and "Hazards" in an authoritative voice while you get ready.
+
+### 4. ⏱️ Real-Time Muhurta Badge
+A live indicator showing the current Muhurta quality (Shubh/Ashubh/Neutral) based on your GPS location.
+
+### 5. ❓ Ask Before You Act (Prashna Engine)
+A dedicated horary engine that casts a chart for the exact moment of your question to give you a cosmic YES, NO, or WAIT.
+
+### 6. 🔙 Retro-Analysis (Past Event Decoder)
+Enter a past date and event to understand the planetary transits and "Cosmic Lessons" behind what happened.
+
+### 7. 👥 Synastry-Integrated Interactions
+Personalized advice for interacting with your **Inner Circle** (Boss, Wife, Daughter, etc.) based on chart-to-chart compatibility.
+
+## 🛠️ Tech Stack & Security
+- **Core:** React + Vite + Vanilla CSS
+- **Intelligence:** Google Gemini 2.0 Flash
+- **Mobile Bridge:** Capacitor (iOS/Android)
+- **Security:** API keys are protected via environment variables and excluded from Git.
+
+## 🚀 Setup Instructions
+
 1. **Environment Configuration:**
-   - Open `.env` in the root directory.
-   - Enter your Gemini API key: `VITE_GEMINI_API_KEY=your_key_here`.
+   - Create a `.env` file in the root directory.
+   - Add your key: `VITE_GEMINI_API_KEY=your_gemini_api_key_here`.
+
 2. **Local Development:**
-   - Run `npm install`
-   - Run `npm run dev`
-   - Access at `http://localhost:3000`
+   ```bash
+   npm install
+   npm run dev
+   ```
 
-### Building for Android (APK)
-This project uses **Capacitor** to bridge the web application to a native Android environment.
-
-#### Prerequisites
-- **Android Studio** installed and configured.
-- **Java JDK 17+** installed.
-- **Android SDK** and Build Tools installed via Android Studio.
-
-#### Build Workflow
-1. **Build the Web Asset Bundle:**
+3. **Android Build:**
    ```bash
    npm run build
+   npx cap sync android
+   cd android
+   ./gradlew assembleDebug
    ```
-2. **Initialize Capacitor (First time only):**
-   ```bash
-   npx cap init "Celestial Guide" com.celestial.guide --web-dir dist
-   ```
-3. **Add Android Platform:**
-   ```bash
-   npm install @capacitor/android
-   npx cap add android
-   ```
-4. **Sync Project:**
-   ```bash
-   npx cap sync
-   ```
-5. **Open in Android Studio:**
-   ```bash
-   npx cap open android
-   ```
-6. **Generate APK:**
-   - In Android Studio: `Build` > `Build Bundle(s) / APK(s)` > `Build APK(s)`.
 
 ---
-**CELESTIAL GUIDE - HARMONY IN EVERY MOMENT.**
+**CELESTIAL GUIDE - YOUR COSMIC OPERATING SYSTEM.**

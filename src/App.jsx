@@ -150,7 +150,7 @@ Format: ${RESPONSE_JSON_STRUCTURE}`;
 // GEMINI API SERVICE
 // ==========================================
 
-const API_KEY = "AIzaSyCWYLcdSDc3bEDlms-efIRuSO-I2eoQV9Y";
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 async function fetchForecast(date, location, contacts) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Component } from 'react';
+import React, { useState, useEffect, useRef, Component } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
 
 // ==========================================
@@ -212,20 +212,20 @@ class ErrorBoundary extends Component {
 // ==========================================
 
 const COLOR_THEMES = {
-    'red': { bg: 'linear-gradient(180deg, #fef2f2 0%, #fee2e2 100%)', accent: '#ef4444', accentLight: '#fecaca' },
-    'orange': { bg: 'linear-gradient(180deg, #fffbeb 0%, #fed7aa 100%)', accent: '#f97316', accentLight: '#fdba74' },
-    'yellow': { bg: 'linear-gradient(180deg, #fefce8 0%, #fef08a 100%)', accent: '#eab308', accentLight: '#fde047' },
-    'green': { bg: 'linear-gradient(180deg, #f0fdf4 0%, #bbf7d0 100%)', accent: '#22c55e', accentLight: '#86efac' },
-    'blue': { bg: 'linear-gradient(180deg, #eff6ff 0%, #bfdbfe 100%)', accent: '#3b82f6', accentLight: '#93c5fd' },
-    'navy blue': { bg: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)', accent: '#60a5fa', accentLight: '#1e40af', text: '#f8fafc' },
-    'indigo': { bg: 'linear-gradient(180deg, #eef2ff 0%, #c7d2fe 100%)', accent: '#6366f1', accentLight: '#a5b4fc' },
-    'purple': { bg: 'linear-gradient(180deg, #faf5ff 0%, #e9d5ff 100%)', accent: '#a855f7', accentLight: '#d8b4fe' },
-    'pink': { bg: 'linear-gradient(180deg, #fdf2f8 0%, #fbcfe8 100%)', accent: '#ec4899', accentLight: '#f9a8d4' },
-    'white': { bg: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)', accent: '#6366f1', accentLight: '#e0e7ff' },
-    'black': { bg: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)', accent: '#f8fafc', accentLight: '#475569', text: '#f8fafc' },
-    'grey': { bg: 'linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%)', accent: '#64748b', accentLight: '#cbd5e1' },
-    'brown': { bg: 'linear-gradient(180deg, #fef3c7 0%, #d6d3d1 100%)', accent: '#a16207', accentLight: '#ca8a04' },
-    'default': { bg: '#f8fafc', accent: '#6366f1', accentLight: '#eef2ff' }
+    'red': { bg: 'linear-gradient(180deg, #fef2f2 0%, #fee2e2 100%)', accent: '#ef4444', accentLight: '#fecaca', text: '#1e293b', cardBg: 'rgba(255,255,255,0.9)', cardText: '#1e293b' },
+    'orange': { bg: 'linear-gradient(180deg, #fffbeb 0%, #fed7aa 100%)', accent: '#f97316', accentLight: '#fdba74', text: '#1e293b', cardBg: 'rgba(255,255,255,0.9)', cardText: '#1e293b' },
+    'yellow': { bg: 'linear-gradient(180deg, #fefce8 0%, #fef08a 100%)', accent: '#eab308', accentLight: '#fde047', text: '#1e293b', cardBg: 'rgba(255,255,255,0.9)', cardText: '#1e293b' },
+    'green': { bg: 'linear-gradient(180deg, #f0fdf4 0%, #bbf7d0 100%)', accent: '#22c55e', accentLight: '#86efac', text: '#1e293b', cardBg: 'rgba(255,255,255,0.9)', cardText: '#1e293b' },
+    'blue': { bg: 'linear-gradient(180deg, #eff6ff 0%, #bfdbfe 100%)', accent: '#3b82f6', accentLight: '#93c5fd', text: '#1e293b', cardBg: 'rgba(255,255,255,0.9)', cardText: '#1e293b' },
+    'navy blue': { bg: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)', accent: '#60a5fa', accentLight: '#1e40af', text: '#f8fafc', cardBg: 'rgba(30,41,59,0.8)', cardText: '#f8fafc' },
+    'indigo': { bg: 'linear-gradient(180deg, #eef2ff 0%, #c7d2fe 100%)', accent: '#6366f1', accentLight: '#a5b4fc', text: '#1e293b', cardBg: 'rgba(255,255,255,0.9)', cardText: '#1e293b' },
+    'purple': { bg: 'linear-gradient(180deg, #faf5ff 0%, #e9d5ff 100%)', accent: '#a855f7', accentLight: '#d8b4fe', text: '#1e293b', cardBg: 'rgba(255,255,255,0.9)', cardText: '#1e293b' },
+    'pink': { bg: 'linear-gradient(180deg, #fdf2f8 0%, #fbcfe8 100%)', accent: '#ec4899', accentLight: '#f9a8d4', text: '#1e293b', cardBg: 'rgba(255,255,255,0.9)', cardText: '#1e293b' },
+    'white': { bg: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)', accent: '#6366f1', accentLight: '#e0e7ff', text: '#1e293b', cardBg: 'rgba(255,255,255,0.9)', cardText: '#1e293b' },
+    'black': { bg: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)', accent: '#f8fafc', accentLight: '#475569', text: '#f8fafc', cardBg: 'rgba(30,41,59,0.8)', cardText: '#f8fafc' },
+    'grey': { bg: 'linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%)', accent: '#64748b', accentLight: '#cbd5e1', text: '#1e293b', cardBg: 'rgba(255,255,255,0.9)', cardText: '#1e293b' },
+    'brown': { bg: 'linear-gradient(180deg, #fef3c7 0%, #d6d3d1 100%)', accent: '#a16207', accentLight: '#ca8a04', text: '#1e293b', cardBg: 'rgba(255,255,255,0.9)', cardText: '#1e293b' },
+    'default': { bg: '#f8fafc', accent: '#6366f1', accentLight: '#eef2ff', text: '#1e293b', cardBg: 'rgba(255,255,255,0.9)', cardText: '#1e293b' }
 };
 
 function getTheme(colorName) {
@@ -295,6 +295,17 @@ const App = () => {
     const [retroAnalysis, setRetroAnalysis] = useState(null);
     const [retroLoading, setRetroLoading] = useState(false);
 
+    // Weekly/Monthly Forecast State
+    const [showWeekly, setShowWeekly] = useState(false);
+    const [weeklyForecast, setWeeklyForecast] = useState(null);
+    const [weeklyLoading, setWeeklyLoading] = useState(false);
+    const [showMonthly, setShowMonthly] = useState(false);
+    const [monthlyForecast, setMonthlyForecast] = useState(null);
+    const [monthlyLoading, setMonthlyLoading] = useState(false);
+
+    // Heatmap scroll ref
+    const heatmapRef = useRef(null);
+
     const rangeDates = [];
     const today = new Date();
     for (let i = -3; i <= 3; i++) {
@@ -304,6 +315,15 @@ const App = () => {
     }
 
     useEffect(() => { loadForecast(); }, [selectedDate]);
+
+    // Auto-scroll heatmap to current hour
+    useEffect(() => {
+        if (forecast?.hourly_intensity?.hours && heatmapRef.current) {
+            const currentHour = new Date().getHours();
+            const scrollPosition = currentHour * 128; // 120px width + 8px gap
+            heatmapRef.current.scrollTo({ left: scrollPosition - 60, behavior: 'smooth' });
+        }
+    }, [forecast]);
 
     const loadForecast = async () => {
         setLoading(true);
@@ -538,6 +558,114 @@ Respond in JSON only:
         }
     };
 
+    // Weekly Forecast
+    const loadWeeklyForecast = async () => {
+        setWeeklyLoading(true);
+        const today = new Date();
+        const weekStart = new Date(today);
+        weekStart.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+
+        const weeklyPrompt = `You are "Astro-Intelligence Unit (AIU)". 
+Provide a WEEKLY forecast for ${DEFAULT_SUBJECT.name} (born ${DEFAULT_SUBJECT.dob}, ${DEFAULT_SUBJECT.tob}, ${DEFAULT_SUBJECT.pob}).
+Natal Configuration: Ascendant Libra, Moon Aquarius, Sun Leo.
+Week: ${weekStart.toDateString()} to ${weekEnd.toDateString()}
+
+Analyze the major planetary transits affecting this week. Provide:
+1. Overall week score (0-100)
+2. Key theme of the week
+3. Best days for important activities
+4. Days to be cautious
+5. Weekly advice for office, family, health
+6. Major transit events this week
+
+Respond in JSON only:
+{
+  "meta": { "week_start": "${weekStart.toISOString().split('T')[0]}", "week_end": "${weekEnd.toISOString().split('T')[0]}", "score": 0, "theme": "" },
+  "best_days": [{ "date": "YYYY-MM-DD", "day": "Monday", "activity": "", "reason": "" }],
+  "caution_days": [{ "date": "YYYY-MM-DD", "day": "Thursday", "warning": "", "reason": "" }],
+  "weekly_advice": { "office": "", "family": "", "health": "", "finance": "" },
+  "major_transits": [{ "date": "YYYY-MM-DD", "planet": "", "event": "", "impact": "" }],
+  "verdict": ""
+}`;
+
+        try {
+            const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ role: "user", parts: [{ text: weeklyPrompt }] }],
+                    generationConfig: { temperature: 0.3, maxOutputTokens: 4096 }
+                })
+            });
+            const data = await response.json();
+            let text = data.candidates[0].content.parts[0].text;
+            text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+            setWeeklyForecast(JSON.parse(text));
+        } catch (err) {
+            console.error('Weekly fetch error:', err);
+        } finally {
+            setWeeklyLoading(false);
+        }
+    };
+
+    // Monthly Forecast
+    const loadMonthlyForecast = async () => {
+        setMonthlyLoading(true);
+        const today = new Date();
+        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+        const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        const monthName = today.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+        const monthlyPrompt = `You are "Astro-Intelligence Unit (AIU)". 
+Provide a MONTHLY forecast for ${DEFAULT_SUBJECT.name} (born ${DEFAULT_SUBJECT.dob}, ${DEFAULT_SUBJECT.tob}, ${DEFAULT_SUBJECT.pob}).
+Natal Configuration: Ascendant Libra, Moon Aquarius, Sun Leo.
+Month: ${monthName}
+
+Analyze the major planetary transits affecting this month. Provide:
+1. Overall month score (0-100)
+2. Key theme of the month
+3. Best weeks and dates
+4. Challenging periods
+5. Monthly advice for career, relationships, health, finances
+6. Key planetary ingresses or retrogrades
+
+Respond in JSON only:
+{
+  "meta": { "month": "${monthName}", "score": 0, "theme": "" },
+  "week_outlook": [
+    { "week": 1, "dates": "1-7", "outlook": "", "score": 0 },
+    { "week": 2, "dates": "8-14", "outlook": "", "score": 0 },
+    { "week": 3, "dates": "15-21", "outlook": "", "score": 0 },
+    { "week": 4, "dates": "22-end", "outlook": "", "score": 0 }
+  ],
+  "key_dates": [{ "date": "YYYY-MM-DD", "event": "", "impact": "positive|negative|neutral" }],
+  "monthly_advice": { "career": "", "relationships": "", "health": "", "finance": "" },
+  "major_transits": [{ "date": "YYYY-MM-DD", "planet": "", "event": "", "impact": "" }],
+  "verdict": ""
+}`;
+
+        try {
+            const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ role: "user", parts: [{ text: monthlyPrompt }] }],
+                    generationConfig: { temperature: 0.3, maxOutputTokens: 4096 }
+                })
+            });
+            const data = await response.json();
+            let text = data.candidates[0].content.parts[0].text;
+            text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+            setMonthlyForecast(JSON.parse(text));
+        } catch (err) {
+            console.error('Monthly fetch error:', err);
+        } finally {
+            setMonthlyLoading(false);
+        }
+    };
+
     // Settings Page
     if (showSettings) {
         return (
@@ -769,6 +897,32 @@ Respond in JSON only:
                 </div>
 
                 {/* Real-Time Muhurta Badge */}
+                {/* Weekly/Monthly Quick Access */}
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                    <button
+                        onClick={() => { setShowWeekly(true); if (!weeklyForecast) loadWeeklyForecast(); }}
+                        style={{
+                            flex: 1, padding: '12px', borderRadius: '12px', border: 'none',
+                            background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)', color: '#fff',
+                            fontWeight: '700', fontSize: '12px', cursor: 'pointer',
+                            fontFamily: 'system-ui, -apple-system, sans-serif'
+                        }}
+                    >
+                        📅 This Week
+                    </button>
+                    <button
+                        onClick={() => { setShowMonthly(true); if (!monthlyForecast) loadMonthlyForecast(); }}
+                        style={{
+                            flex: 1, padding: '12px', borderRadius: '12px', border: 'none',
+                            background: 'linear-gradient(135deg, #8b5cf6, #a855f7)', color: '#fff',
+                            fontWeight: '700', fontSize: '12px', cursor: 'pointer',
+                            fontFamily: 'system-ui, -apple-system, sans-serif'
+                        }}
+                    >
+                        🗓️ This Month
+                    </button>
+                </div>
+
                 {forecast?.muhurta_schedule && forecast.muhurta_schedule.length > 0 && (() => {
                     const now = new Date();
                     const currentHour = now.getHours();
@@ -808,7 +962,7 @@ Respond in JSON only:
                         <div style={{ fontSize: '10px', color: '#64748b', marginBottom: '10px' }}>
                             Scroll → to view each hour. 🔵 Low stress | 🟢 Moderate | 🟡 Elevated | 🔴 High intensity
                         </div>
-                        <div style={{ overflowX: 'auto', display: 'flex', gap: '8px', paddingBottom: '10px' }} className="no-scroll">
+                        <div ref={heatmapRef} style={{ overflowX: 'auto', display: 'flex', gap: '8px', paddingBottom: '10px' }} className="no-scroll">
                             {forecast.hourly_intensity.hours.map((intensity, hour) => {
                                 const isNow = new Date().getHours() === hour;
                                 const hue = 240 - (intensity * 2.4);
@@ -1175,6 +1329,182 @@ Respond in JSON only:
                     </div>
                 </div>
             )}
+
+            {/* Weekly Forecast Modal */}
+            {showWeekly && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    zIndex: 300, padding: '20px'
+                }}>
+                    <div style={{
+                        background: 'linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 100%)',
+                        borderRadius: '24px', padding: '25px', maxWidth: '450px', width: '100%',
+                        maxHeight: '85vh', overflow: 'auto', fontFamily: 'system-ui, -apple-system, sans-serif'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <div>
+                                <div style={{ fontSize: '20px', fontWeight: '900' }}>📅 Weekly Forecast</div>
+                                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>{weeklyForecast?.meta?.week_start} to {weeklyForecast?.meta?.week_end}</div>
+                            </div>
+                            <div onClick={() => setShowWeekly(false)} style={{ cursor: 'pointer', fontSize: '24px', padding: '8px' }}>✕</div>
+                        </div>
+
+                        {weeklyLoading ? (
+                            <div style={{ textAlign: 'center', padding: '40px' }}>
+                                <div style={styles.spinner}></div>
+                                <div style={{ fontSize: '12px', color: '#64748b' }}>Analyzing planetary transits...</div>
+                            </div>
+                        ) : weeklyForecast ? (
+                            <>
+                                {/* Week Score */}
+                                <div style={{ background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)', borderRadius: '16px', padding: '20px', color: '#fff', marginBottom: '15px', textAlign: 'center' }}>
+                                    <div style={{ fontSize: '40px', fontWeight: '900' }}>{weeklyForecast.meta?.score}%</div>
+                                    <div style={{ fontSize: '12px', opacity: 0.9 }}>{weeklyForecast.meta?.theme}</div>
+                                </div>
+
+                                {/* Best Days */}
+                                {weeklyForecast.best_days?.length > 0 && (
+                                    <div style={{ background: '#fff', borderRadius: '14px', padding: '15px', marginBottom: '12px', border: '1px solid #e2e8f0' }}>
+                                        <div style={{ fontSize: '11px', fontWeight: '800', color: '#22c55e', marginBottom: '10px' }}>🟢 BEST DAYS</div>
+                                        {weeklyForecast.best_days.map((d, i) => (
+                                            <div key={i} style={{ padding: '8px 0', borderBottom: i < weeklyForecast.best_days.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+                                                <div style={{ fontSize: '13px', fontWeight: '700' }}>{d.day} - {d.activity}</div>
+                                                <div style={{ fontSize: '11px', color: '#64748b' }}>{d.reason}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Caution Days */}
+                                {weeklyForecast.caution_days?.length > 0 && (
+                                    <div style={{ background: '#fff', borderRadius: '14px', padding: '15px', marginBottom: '12px', border: '1px solid #e2e8f0' }}>
+                                        <div style={{ fontSize: '11px', fontWeight: '800', color: '#ef4444', marginBottom: '10px' }}>🔴 CAUTION DAYS</div>
+                                        {weeklyForecast.caution_days.map((d, i) => (
+                                            <div key={i} style={{ padding: '8px 0', borderBottom: i < weeklyForecast.caution_days.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+                                                <div style={{ fontSize: '13px', fontWeight: '700' }}>{d.day} - {d.warning}</div>
+                                                <div style={{ fontSize: '11px', color: '#64748b' }}>{d.reason}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Weekly Advice */}
+                                {weeklyForecast.weekly_advice && (
+                                    <div style={{ background: '#fff', borderRadius: '14px', padding: '15px', border: '1px solid #e2e8f0' }}>
+                                        <div style={{ fontSize: '11px', fontWeight: '800', color: '#6366f1', marginBottom: '10px' }}>📋 WEEKLY ADVICE</div>
+                                        {Object.entries(weeklyForecast.weekly_advice).map(([key, val]) => (
+                                            <div key={key} style={{ padding: '6px 0' }}>
+                                                <span style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', color: '#64748b' }}>{key}: </span>
+                                                <span style={{ fontSize: '12px' }}>{val}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {weeklyForecast.verdict && (
+                                    <div style={{ marginTop: '15px', padding: '12px', background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)', borderRadius: '12px', color: '#fff', fontSize: '13px', fontWeight: '600', textAlign: 'center' }}>
+                                        {weeklyForecast.verdict}
+                                    </div>
+                                )}
+                            </>
+                        ) : null}
+                    </div>
+                </div>
+            )}
+
+            {/* Monthly Forecast Modal */}
+            {showMonthly && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    zIndex: 300, padding: '20px'
+                }}>
+                    <div style={{
+                        background: 'linear-gradient(180deg, #faf5ff 0%, #f3e8ff 100%)',
+                        borderRadius: '24px', padding: '25px', maxWidth: '450px', width: '100%',
+                        maxHeight: '85vh', overflow: 'auto', fontFamily: 'system-ui, -apple-system, sans-serif'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <div>
+                                <div style={{ fontSize: '20px', fontWeight: '900' }}>🗓️ Monthly Forecast</div>
+                                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>{monthlyForecast?.meta?.month}</div>
+                            </div>
+                            <div onClick={() => setShowMonthly(false)} style={{ cursor: 'pointer', fontSize: '24px', padding: '8px' }}>✕</div>
+                        </div>
+
+                        {monthlyLoading ? (
+                            <div style={{ textAlign: 'center', padding: '40px' }}>
+                                <div style={styles.spinner}></div>
+                                <div style={{ fontSize: '12px', color: '#64748b' }}>Analyzing month-long transits...</div>
+                            </div>
+                        ) : monthlyForecast ? (
+                            <>
+                                {/* Month Score */}
+                                <div style={{ background: 'linear-gradient(135deg, #8b5cf6, #a855f7)', borderRadius: '16px', padding: '20px', color: '#fff', marginBottom: '15px', textAlign: 'center' }}>
+                                    <div style={{ fontSize: '40px', fontWeight: '900' }}>{monthlyForecast.meta?.score}%</div>
+                                    <div style={{ fontSize: '12px', opacity: 0.9 }}>{monthlyForecast.meta?.theme}</div>
+                                </div>
+
+                                {/* Week Outlook */}
+                                {monthlyForecast.week_outlook?.length > 0 && (
+                                    <div style={{ background: '#fff', borderRadius: '14px', padding: '15px', marginBottom: '12px', border: '1px solid #e2e8f0' }}>
+                                        <div style={{ fontSize: '11px', fontWeight: '800', color: '#8b5cf6', marginBottom: '10px' }}>📊 WEEK-BY-WEEK</div>
+                                        {monthlyForecast.week_outlook.map((w, i) => (
+                                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', borderBottom: i < 3 ? '1px solid #f1f5f9' : 'none' }}>
+                                                <div style={{
+                                                    width: '36px', height: '36px', borderRadius: '10px',
+                                                    background: w.score >= 70 ? '#22c55e' : w.score >= 50 ? '#f59e0b' : '#ef4444',
+                                                    color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    fontSize: '12px', fontWeight: '800'
+                                                }}>{w.score}</div>
+                                                <div style={{ flex: 1 }}>
+                                                    <div style={{ fontSize: '12px', fontWeight: '700' }}>Week {w.week} ({w.dates})</div>
+                                                    <div style={{ fontSize: '11px', color: '#64748b' }}>{w.outlook}</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Key Dates */}
+                                {monthlyForecast.key_dates?.length > 0 && (
+                                    <div style={{ background: '#fff', borderRadius: '14px', padding: '15px', marginBottom: '12px', border: '1px solid #e2e8f0' }}>
+                                        <div style={{ fontSize: '11px', fontWeight: '800', color: '#6366f1', marginBottom: '10px' }}>📌 KEY DATES</div>
+                                        {monthlyForecast.key_dates.map((d, i) => (
+                                            <div key={i} style={{ padding: '6px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <span style={{ fontSize: '14px' }}>{d.impact === 'positive' ? '🟢' : d.impact === 'negative' ? '🔴' : '🟡'}</span>
+                                                <span style={{ fontSize: '12px' }}><strong>{d.date?.split('-').slice(1).join('/')}</strong>: {d.event}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Monthly Advice */}
+                                {monthlyForecast.monthly_advice && (
+                                    <div style={{ background: '#fff', borderRadius: '14px', padding: '15px', border: '1px solid #e2e8f0' }}>
+                                        <div style={{ fontSize: '11px', fontWeight: '800', color: '#a855f7', marginBottom: '10px' }}>💡 MONTHLY GUIDANCE</div>
+                                        {Object.entries(monthlyForecast.monthly_advice).map(([key, val]) => (
+                                            <div key={key} style={{ padding: '6px 0' }}>
+                                                <span style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', color: '#64748b' }}>{key}: </span>
+                                                <span style={{ fontSize: '12px' }}>{val}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {monthlyForecast.verdict && (
+                                    <div style={{ marginTop: '15px', padding: '12px', background: 'linear-gradient(135deg, #8b5cf6, #a855f7)', borderRadius: '12px', color: '#fff', fontSize: '13px', fontWeight: '600', textAlign: 'center' }}>
+                                        {monthlyForecast.verdict}
+                                    </div>
+                                )}
+                            </>
+                        ) : null}
+                    </div>
+                </div>
+            )}
         </ErrorBoundary>
     );
 };
@@ -1227,7 +1557,7 @@ const styles = {
     metricBox: { background: '#f8fafc', padding: '12px 8px', borderRadius: '10px', textAlign: 'center' },
     metricLabel: { fontSize: '9px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' },
     metricValue: { fontSize: '14px', fontWeight: '900', color: '#1e293b', marginBottom: '4px' },
-    input: { width: '100%', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', marginTop: '8px', boxSizing: 'border-box' },
+    input: { width: '100%', padding: '14px 16px', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '15px', fontFamily: 'system-ui, -apple-system, sans-serif', marginTop: '8px', boxSizing: 'border-box', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)', transition: 'all 0.2s ease', outline: 'none' },
     contactCard: { background: '#f8fafc', borderRadius: '12px', padding: '15px', marginBottom: '10px' },
     synastryBadge: { fontSize: '12px', marginLeft: '5px' },
     smallButton: { background: '#eef2ff', color: '#6366f1', border: 'none', padding: '8px 14px', borderRadius: '8px', fontWeight: '700', fontSize: '11px', cursor: 'pointer' },

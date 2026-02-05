@@ -43,15 +43,16 @@ function generateSynastryPrompt(contacts) {
     return synastrySection;
 }
 
-const ANALYSIS_RULES = `
+
+const getAnalysisRules = (subject) => `
 ### **CRITICAL INSTRUCTIONS FOR ANALYSIS**
 You are a high-precision Vedic Astrologer (Sidereal System). Provide an extremely detailed, narrative-rich analysis.
 
 **Subject's Natal Chart:**
-- Ascendant (Lagna): Libra (Tula)
-- Moon (Mind): Aquarius (Kumbha)
-- Sun (Soul): Leo (Simha)
-- Day Number: 8 (Saturn)
+- Ascendant (Lagna): ${subject.indicators?.ascendant || 'Unknown'}
+- Moon (Mind): ${subject.indicators?.moonSign || 'Unknown'}
+- Sun (Soul): ${subject.indicators?.sunSign || 'Unknown'}
+- Day Number: ${subject.indicators?.dayNumber || 'Unknown'}
 
 **Your Task:**
 1. **Cosmic Weather:** Current transit positions of Moon, Saturn, Rahu, Mercury, Mars, Venus.
@@ -130,16 +131,17 @@ const RESPONSE_JSON_STRUCTURE = `
 }
 `;
 
-function generateSystemPrompt(location, contacts) {
+function generateSystemPrompt(location, contacts, subject) {
     const synastryPrompt = generateSynastryPrompt(contacts);
+    const analysisRules = getAnalysisRules(subject);
 
     return `You are "Astro-Intelligence Unit (AIU)". 
-Mission: Comprehensive daily astro-technical report for ${DEFAULT_SUBJECT.name}.
-Natal Data: Born ${DEFAULT_SUBJECT.dob}, ${DEFAULT_SUBJECT.tob}, at ${DEFAULT_SUBJECT.pob}.
+Mission: Comprehensive daily astro-technical report for ${subject.name}.
+Natal Data: Born ${subject.dob}, ${subject.tob}, at ${subject.pob}.
 Current Location: ${location || 'Mumbai, India'} (for local sunrise/muhurtas).
-Natal Configuration: ${JSON.stringify(DEFAULT_SUBJECT.indicators)}
+Natal Configuration: ${JSON.stringify(subject.indicators)}
 
-${ANALYSIS_RULES}
+${analysisRules}
 ${synastryPrompt}
 
 Output: STRICT JSON ONLY. No markdown.
@@ -153,8 +155,8 @@ Format: ${RESPONSE_JSON_STRUCTURE}`;
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
-async function fetchForecast(date, location, contacts) {
-    const systemPrompt = generateSystemPrompt(location, contacts);
+async function fetchForecast(date, location, contacts, subject) {
+    const systemPrompt = generateSystemPrompt(location, contacts, subject);
     const userMessage = `Date: ${date}. Analyze planetary transits for subject. Respond ONLY with JSON. No markdown backticks.`;
 
     try {
@@ -281,7 +283,18 @@ const App = () => {
     });
     const [editingContact, setEditingContact] = useState(null);
     const [contactForm, setContactForm] = useState({ name: '', dob: '', tob: '', pob: '' });
-    const [settingsTab, setSettingsTab] = useState('data'); // 'data' or 'audit' or 'retro'
+    const [settingsTab, setSettingsTab] = useState('data'); // 'data' or 'audit' or 'retro' or 'profile'
+
+    // User Profile State
+    const [showWelcomeModal, setShowWelcomeModal] = useState(() => !localStorage.getItem('aiu_user_profile'));
+    const [userProfile, setUserProfile] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem('aiu_user_profile')) || DEFAULT_SUBJECT;
+        } catch {
+            return DEFAULT_SUBJECT;
+        }
+    });
+    const [profileForm, setProfileForm] = useState(userProfile);
 
     // Prashna Engine State
     const [showPrashna, setShowPrashna] = useState(false);
@@ -330,7 +343,7 @@ const App = () => {
         setError(null);
         try {
             const dateStr = selectedDate.toISOString().split('T')[0];
-            const data = await fetchForecast(dateStr, location, contacts);
+            const data = await fetchForecast(dateStr, location, contacts, userProfile);
             setForecast(data);
         } catch (err) {
             setError(err.message || "Uplink Error");
@@ -568,8 +581,8 @@ Respond in JSON only:
         weekEnd.setDate(weekStart.getDate() + 6);
 
         const weeklyPrompt = `You are "Astro-Intelligence Unit (AIU)". 
-Provide a WEEKLY forecast for ${DEFAULT_SUBJECT.name} (born ${DEFAULT_SUBJECT.dob}, ${DEFAULT_SUBJECT.tob}, ${DEFAULT_SUBJECT.pob}).
-Natal Configuration: Ascendant Libra, Moon Aquarius, Sun Leo.
+Provide a WEEKLY forecast for ${userProfile.name} (born ${userProfile.dob}, ${userProfile.tob}, ${userProfile.pob}).
+Natal Configuration: Ascendant ${userProfile.indicators?.ascendant || 'Unknown'}, Moon ${userProfile.indicators?.moonSign || 'Unknown'}, Sun ${userProfile.indicators?.sunSign || 'Unknown'}.
 Week: ${weekStart.toDateString()} to ${weekEnd.toDateString()}
 
 Analyze the major planetary transits affecting this week. Provide:
@@ -619,8 +632,8 @@ Respond in JSON only:
         const monthName = today.toLocaleString('default', { month: 'long', year: 'numeric' });
 
         const monthlyPrompt = `You are "Astro-Intelligence Unit (AIU)". 
-Provide a MONTHLY forecast for ${DEFAULT_SUBJECT.name} (born ${DEFAULT_SUBJECT.dob}, ${DEFAULT_SUBJECT.tob}, ${DEFAULT_SUBJECT.pob}).
-Natal Configuration: Ascendant Libra, Moon Aquarius, Sun Leo.
+Provide a MONTHLY forecast for ${userProfile.name} (born ${userProfile.dob}, ${userProfile.tob}, ${userProfile.pob}).
+Natal Configuration: Ascendant ${userProfile.indicators?.ascendant || 'Unknown'}, Moon ${userProfile.indicators?.moonSign || 'Unknown'}, Sun ${userProfile.indicators?.sunSign || 'Unknown'}.
 Month: ${monthName}
 
 Analyze the major planetary transits affecting this month. Provide:
@@ -681,9 +694,48 @@ Respond in JSON only:
                 {/* Tab Switcher */}
                 <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
                     <div onClick={() => setSettingsTab('data')} style={{ ...styles.tab, ...(settingsTab === 'data' ? styles.activeTab : {}) }}>Input</div>
+                    <div onClick={() => setSettingsTab('profile')} style={{ ...styles.tab, ...(settingsTab === 'profile' ? styles.activeTab : {}) }}>Profile</div>
                     <div onClick={() => setSettingsTab('audit')} style={{ ...styles.tab, ...(settingsTab === 'audit' ? styles.activeTab : {}) }}>Audit</div>
                     <div onClick={() => setSettingsTab('retro')} style={{ ...styles.tab, ...(settingsTab === 'retro' ? styles.activeTab : {}) }}>Retro</div>
                 </div>
+
+                {/* Profile Settings Tab */}
+                {settingsTab === 'profile' && (
+                    <div style={styles.card}>
+                        <h3 style={styles.sectionTitle}>👤 Personal Profile</h3>
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ fontSize: '12px', fontWeight: '700', color: '#64748b' }}>FULL NAME</label>
+                            <input type="text" value={profileForm.name} onChange={e => setProfileForm({ ...profileForm, name: e.target.value })} style={styles.input} />
+                        </div>
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ fontSize: '12px', fontWeight: '700', color: '#64748b' }}>DATE OF BIRTH</label>
+                            <input type="text" value={profileForm.dob} onChange={e => setProfileForm({ ...profileForm, dob: e.target.value })} style={styles.input} />
+                        </div>
+                        <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                            <div style={{ flex: 1 }}>
+                                <label style={{ fontSize: '12px', fontWeight: '700', color: '#64748b' }}>TIME</label>
+                                <input type="text" value={profileForm.tob} onChange={e => setProfileForm({ ...profileForm, tob: e.target.value })} style={styles.input} />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <label style={{ fontSize: '12px', fontWeight: '700', color: '#64748b' }}>PLACE</label>
+                                <input type="text" value={profileForm.pob} onChange={e => setProfileForm({ ...profileForm, pob: e.target.value })} style={styles.input} />
+                            </div>
+                        </div>
+                        <hr style={{ border: 'none', borderTop: '1px solid #e2e8f0', margin: '20px 0' }} />
+                        <h4 style={{ fontSize: '13px', marginBottom: '10px' }}>Astro Indicators (Optional)</h4>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                            <input type="text" placeholder="Ascendant" value={profileForm.indicators?.ascendant || ''} onChange={e => setProfileForm({ ...profileForm, indicators: { ...profileForm.indicators, ascendant: e.target.value } })} style={styles.input} />
+                            <input type="text" placeholder="Moon Sign" value={profileForm.indicators?.moonSign || ''} onChange={e => setProfileForm({ ...profileForm, indicators: { ...profileForm.indicators, moonSign: e.target.value } })} style={styles.input} />
+                            <input type="text" placeholder="Sun Sign" value={profileForm.indicators?.sunSign || ''} onChange={e => setProfileForm({ ...profileForm, indicators: { ...profileForm.indicators, sunSign: e.target.value } })} style={styles.input} />
+                            <input type="text" placeholder="Day Number" value={profileForm.indicators?.dayNumber || ''} onChange={e => setProfileForm({ ...profileForm, indicators: { ...profileForm.indicators, dayNumber: e.target.value } })} style={styles.input} />
+                        </div>
+                        <button onClick={() => {
+                            setUserProfile(profileForm);
+                            localStorage.setItem('aiu_user_profile', JSON.stringify(profileForm));
+                            alert('Profile Updated Successfully!');
+                        }} style={{ ...styles.button, width: '100%', marginTop: '20px' }}>Save Profile Changes</button>
+                    </div>
+                )}
 
 
                 {settingsTab === 'data' && (
@@ -1505,6 +1557,129 @@ Respond in JSON only:
                     </div>
                 </div>
             )}
+            {/* Welcome Modal for New Users */}
+            {showWelcomeModal && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(5px)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    zIndex: 400, padding: '20px'
+                }}>
+                    <div style={{
+                        background: '#fff', borderRadius: '24px', padding: '30px',
+                        maxWidth: '450px', width: '100%', maxHeight: '90vh', overflow: 'auto',
+                        fontFamily: 'system-ui, -apple-system, sans-serif'
+                    }}>
+                        <div style={{ textAlign: 'center', marginBottom: '25px' }}>
+                            <div style={{ fontSize: '40px', marginBottom: '10px' }}>🧭</div>
+                            <div style={{ fontSize: '24px', fontWeight: '900', color: '#1e293b' }}>Welcome to Celestial Guide</div>
+                            <div style={{ fontSize: '14px', color: '#64748b', marginTop: '5px' }}>Let's calibrate your cosmic profile.</div>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                            <div>
+                                <label style={{ fontSize: '12px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Full Name</label>
+                                <input
+                                    type="text"
+                                    value={profileForm.name}
+                                    onChange={e => setProfileForm({ ...profileForm, name: e.target.value })}
+                                    style={styles.input}
+                                    placeholder="e.g. Arjun Mehta"
+                                />
+                            </div>
+                            <div>
+                                <label style={{ fontSize: '12px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Date of Birth</label>
+                                <input
+                                    type="text"
+                                    value={profileForm.dob}
+                                    onChange={e => setProfileForm({ ...profileForm, dob: e.target.value })}
+                                    style={styles.input}
+                                    placeholder="e.g. September 8, 1987"
+                                />
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: '12px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Time of Birth</label>
+                                    <input
+                                        type="text"
+                                        value={profileForm.tob}
+                                        onChange={e => setProfileForm({ ...profileForm, tob: e.target.value })}
+                                        style={styles.input}
+                                        placeholder="e.g., 10:30 AM"
+                                    />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: '12px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Place of Birth</label>
+                                    <input
+                                        type="text"
+                                        value={profileForm.pob}
+                                        onChange={e => setProfileForm({ ...profileForm, pob: e.target.value })}
+                                        style={styles.input}
+                                        placeholder="e.g. Mumbai, India"
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', marginTop: '10px' }}>
+                                <div style={{ fontSize: '12px', fontWeight: '700', color: '#6366f1', marginBottom: '10px', textTransform: 'uppercase' }}>Astro Details (Optional)</div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                    <input
+                                        type="text"
+                                        value={profileForm.indicators?.ascendant || ''}
+                                        onChange={e => setProfileForm({ ...profileForm, indicators: { ...profileForm.indicators, ascendant: e.target.value } })}
+                                        style={{ ...styles.input, marginTop: 0 }}
+                                        placeholder="Ascendant"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={profileForm.indicators?.moonSign || ''}
+                                        onChange={e => setProfileForm({ ...profileForm, indicators: { ...profileForm.indicators, moonSign: e.target.value } })}
+                                        style={{ ...styles.input, marginTop: 0 }}
+                                        placeholder="Moon Sign"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={profileForm.indicators?.sunSign || ''}
+                                        onChange={e => setProfileForm({ ...profileForm, indicators: { ...profileForm.indicators, sunSign: e.target.value } })}
+                                        style={{ ...styles.input, marginTop: 0 }}
+                                        placeholder="Sun Sign"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={profileForm.indicators?.dayNumber || ''}
+                                        onChange={e => setProfileForm({ ...profileForm, indicators: { ...profileForm.indicators, dayNumber: e.target.value } })}
+                                        style={{ ...styles.input, marginTop: 0 }}
+                                        placeholder="Day Number"
+                                    />
+                                </div>
+                                <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '8px', lineHeight: '1.4' }}>
+                                    If left blank, AI analysis might be less precise. You can update this later in Settings.
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={() => {
+                                    if (!profileForm.name || !profileForm.dob || !profileForm.tob) {
+                                        alert("Please fill in Name, DOB, and Time.");
+                                        return;
+                                    }
+                                    setUserProfile(profileForm);
+                                    localStorage.setItem('aiu_user_profile', JSON.stringify(profileForm));
+                                    setShowWelcomeModal(false);
+                                    window.location.reload(); // Refresh to load forecast with new data
+                                }}
+                                style={{ ...styles.button, width: '100%', marginTop: '10px', fontSize: '16px' }}
+                            >
+                                Initialize System 🚀
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
+
+            {/* Welcome Modal for New Users */}
         </ErrorBoundary>
     );
 };
@@ -1561,8 +1736,8 @@ const styles = {
     contactCard: { background: '#f8fafc', borderRadius: '12px', padding: '15px', marginBottom: '10px' },
     synastryBadge: { fontSize: '12px', marginLeft: '5px' },
     smallButton: { background: '#eef2ff', color: '#6366f1', border: 'none', padding: '8px 14px', borderRadius: '8px', fontWeight: '700', fontSize: '11px', cursor: 'pointer' },
-    tab: { flex: 1, textAlign: 'center', padding: '10px', fontSize: '12px', fontWeight: '800', color: '#64748b', cursor: 'pointer', borderBottom: '2px solid #e2e8f0' },
-    activeTab: { color: '#6366f1', borderBottomColor: '#6366f1' },
+    tab: { padding: '8px 16px', borderRadius: '20px', background: '#f1f5f9', color: '#64748b', fontSize: '12px', fontWeight: '700', cursor: 'pointer' },
+    activeTab: { background: '#6366f1', color: '#fff' },
     auditRow: { display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f1f5f9' }
 };
 

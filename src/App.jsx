@@ -6,15 +6,15 @@ import { Geolocation } from '@capacitor/geolocation';
 // ==========================================
 
 const DEFAULT_SUBJECT = {
-    name: "Surajkumar Salimath",
-    dob: "September 8, 1987",
-    tob: "10:30 AM",
-    pob: "Gadag, Karnataka, India",
+    name: "Astro Traveler",
+    dob: "January 1, 1990",
+    tob: "12:00 PM",
+    pob: "New Delhi, India",
     indicators: {
-        ascendant: "Libra (Tula)",
-        moonSign: "Aquarius (Kumbha)",
-        sunSign: "Leo (Simha)",
-        dayNumber: "8 (Saturn)"
+        ascendant: "Updating...",
+        moonSign: "Updating...",
+        sunSign: "Updating...",
+        dayNumber: "Updating..."
     }
 };
 

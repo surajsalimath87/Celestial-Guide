@@ -3,8 +3,7 @@ import { generateSystemPrompt } from './prompts';
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 export async function fetchTacticalForecast(date, apiKey) {
-    // BAKED API KEY FOR DIRECT OPERATION
-    const finalApiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    const finalApiKey = apiKey || import.meta.env.VITE_GEMINI_API_KEY;
 
     const systemPrompt = generateSystemPrompt();
     const userMessage = `Current Date for Analysis: ${date}. Provide the tactical briefing for this specific date based on planetary transits relative to the subject's natal chart. Respond ONLY with JSON.`;

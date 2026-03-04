@@ -155,12 +155,15 @@ Format: ${RESPONSE_JSON_STRUCTURE}`;
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
-async function fetchForecast(date, location, contacts, subject) {
+async function fetchForecast(date, location, contacts, subject, dynamicKey) {
     const systemPrompt = generateSystemPrompt(location, contacts, subject);
     const userMessage = `Date: ${date}. Analyze planetary transits for subject. Respond ONLY with JSON. No markdown backticks.`;
 
     try {
-        const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+        const finalKey = dynamicKey || API_KEY;
+        if (!finalKey) throw new Error("API Key Missing. Set it in Settings.");
+
+        const response = await fetch(`${API_URL}?key=${finalKey}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -278,6 +281,7 @@ const App = () => {
     const [error, setError] = useState(null);
     const [showSettings, setShowSettings] = useState(false);
     const [location, setLocation] = useState(() => localStorage.getItem('aiu_location') || 'Mumbai, India');
+    const [apiKey, setApiKey] = useState(() => localStorage.getItem('aiu_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '');
     const [contacts, setContacts] = useState(() => {
         try { return JSON.parse(localStorage.getItem('aiu_contacts')) || {}; } catch { return {}; }
     });
@@ -343,7 +347,7 @@ const App = () => {
         setError(null);
         try {
             const dateStr = selectedDate.toISOString().split('T')[0];
-            const data = await fetchForecast(dateStr, location, contacts, userProfile);
+            const data = await fetchForecast(dateStr, location, contacts, userProfile, apiKey);
             setForecast(data);
         } catch (err) {
             setError(err.message || "Uplink Error");
@@ -692,8 +696,9 @@ Respond in JSON only:
                 </div>
 
                 {/* Tab Switcher */}
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', overflowX: 'auto', paddingBottom: '5px' }} className="no-scroll">
                     <div onClick={() => setSettingsTab('data')} style={{ ...styles.tab, ...(settingsTab === 'data' ? styles.activeTab : {}) }}>Input</div>
+                    <div onClick={() => setSettingsTab('api')} style={{ ...styles.tab, ...(settingsTab === 'api' ? styles.activeTab : {}) }}>API</div>
                     <div onClick={() => setSettingsTab('profile')} style={{ ...styles.tab, ...(settingsTab === 'profile' ? styles.activeTab : {}) }}>Profile</div>
                     <div onClick={() => setSettingsTab('audit')} style={{ ...styles.tab, ...(settingsTab === 'audit' ? styles.activeTab : {}) }}>Audit</div>
                     <div onClick={() => setSettingsTab('retro')} style={{ ...styles.tab, ...(settingsTab === 'retro' ? styles.activeTab : {}) }}>Retro</div>
@@ -738,7 +743,32 @@ Respond in JSON only:
                 )}
 
 
-                {settingsTab === 'data' && (
+                {/* API Settings Tab */}
+                {settingsTab === 'api' && (
+                    <div style={styles.card}>
+                        <h3 style={styles.sectionTitle}>🔑 Gemini API Key</h3>
+                        <p style={{ fontSize: '11px', color: '#64748b', marginBottom: '15px' }}>
+                            Your key is stored locally on your device and never sent to our servers. Get a free key from 
+                            <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" style={{ color: '#6366f1', textDecoration: 'none', marginLeft: '4px' }}>Google AI Studio</a>.
+                        </p>
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ fontSize: '10px', fontWeight: '800', color: '#94a3b8', letterSpacing: '0.05em' }}>CURRENT KEY</label>
+                            <input 
+                                type="password" 
+                                value={apiKey} 
+                                onChange={(e) => { 
+                                    setApiKey(e.target.value); 
+                                    localStorage.setItem('aiu_api_key', e.target.value); 
+                                }} 
+                                placeholder="AIzaSy..." 
+                                style={styles.input} 
+                            />
+                        </div>
+                        <div style={{ fontSize: '10px', color: apiKey ? '#22c55e' : '#f59e0b', fontWeight: '700' }}>
+                            {apiKey ? '✅ Key Present (Active)' : '⚠️ Key Missing (App will fail)'}
+                        </div>
+                    </div>
+                )}
                     <>
                         {/* Location Section */}
                         <div style={styles.card}>

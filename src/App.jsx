@@ -152,7 +152,6 @@ Format: ${RESPONSE_JSON_STRUCTURE}`;
 // GEMINI API SERVICE
 // ==========================================
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 async function fetchForecast(date, location, contacts, subject, dynamicKey) {
@@ -160,7 +159,7 @@ async function fetchForecast(date, location, contacts, subject, dynamicKey) {
     const userMessage = `Date: ${date}. Analyze planetary transits for subject. Respond ONLY with JSON. No markdown backticks.`;
 
     try {
-        const finalKey = dynamicKey || API_KEY;
+        const finalKey = dynamicKey;
         if (!finalKey) throw new Error("API Key Missing. Set it in Settings.");
 
         const response = await fetch(`${API_URL}?key=${finalKey}`, {
@@ -281,7 +280,7 @@ const App = () => {
     const [error, setError] = useState(null);
     const [showSettings, setShowSettings] = useState(false);
     const [location, setLocation] = useState(() => localStorage.getItem('aiu_location') || 'Mumbai, India');
-    const [apiKey, setApiKey] = useState(() => localStorage.getItem('aiu_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '');
+    const [apiKey, setApiKey] = useState(() => localStorage.getItem('aiu_api_key') || '');
     const [contacts, setContacts] = useState(() => {
         try { return JSON.parse(localStorage.getItem('aiu_contacts')) || {}; } catch { return {}; }
     });

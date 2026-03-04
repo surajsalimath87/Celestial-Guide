@@ -748,20 +748,20 @@ Respond in JSON only:
                     <div style={styles.card}>
                         <h3 style={styles.sectionTitle}>🔑 Gemini API Key</h3>
                         <p style={{ fontSize: '11px', color: '#64748b', marginBottom: '15px' }}>
-                            Your key is stored locally on your device and never sent to our servers. Get a free key from 
+                            Your key is stored locally on your device and never sent to our servers. Get a free key from
                             <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" style={{ color: '#6366f1', textDecoration: 'none', marginLeft: '4px' }}>Google AI Studio</a>.
                         </p>
                         <div style={{ marginBottom: '15px' }}>
                             <label style={{ fontSize: '10px', fontWeight: '800', color: '#94a3b8', letterSpacing: '0.05em' }}>CURRENT KEY</label>
-                            <input 
-                                type="password" 
-                                value={apiKey} 
-                                onChange={(e) => { 
-                                    setApiKey(e.target.value); 
-                                    localStorage.setItem('aiu_api_key', e.target.value); 
-                                }} 
-                                placeholder="AIzaSy..." 
-                                style={styles.input} 
+                            <input
+                                type="password"
+                                value={apiKey}
+                                onChange={(e) => {
+                                    setApiKey(e.target.value);
+                                    localStorage.setItem('aiu_api_key', e.target.value);
+                                }}
+                                placeholder="AIzaSy..."
+                                style={styles.input}
                             />
                         </div>
                         <div style={{ fontSize: '10px', color: apiKey ? '#22c55e' : '#f59e0b', fontWeight: '700' }}>
@@ -769,6 +769,7 @@ Respond in JSON only:
                         </div>
                     </div>
                 )}
+                {settingsTab === 'data' && (
                     <>
                         {/* Location Section */}
                         <div style={styles.card}>
